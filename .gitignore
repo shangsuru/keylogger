@@ -1,7 +1,7 @@
-keylogger.ko
-keylogger.mod
-keylogger.mod.c
-keylogger.mod.o
-keylogger.o
-modules.order
-Module.symvers
+*keylogger.ko*
+*keylogger.mod*
+*keylogger.mod.c*
+*keylogger.mod.o*
+*keylogger.o*
+*modules.order*
+*Module.symvers*
