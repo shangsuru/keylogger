@@ -5,6 +5,7 @@ import (
 	"log"
 	"net"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/streadway/amqp"
@@ -29,7 +30,7 @@ func handleConnection(tcpConn net.Conn, amqpConn *amqp.Connection) {
 		}
 
 		// Send data to RabbitMQ
-		log.Printf("%s: \"%s\"", remoteAddr, data)
+		log.Printf("%s: \"%s\"\n", remoteAddr, strings.TrimSuffix(data, "\n"))
 		err = channelAmqp.Publish(
 			"",
 			os.Getenv("RABBITMQ_QUEUE"),
