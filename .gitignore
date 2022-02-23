@@ -5,3 +5,4 @@
 *keylogger.o*
 *modules.order*
 *Module.symvers*
+server/db/postgres/*

@@ -18,7 +18,6 @@ func init() {
 	if err != nil {
 		log.Fatalf("Error connecting to database: %v\n", err)
 	}
-	defer db.Close()
 	err = db.Ping()
 	if err != nil {
 		log.Fatalf("Error connecting to database: %v\n", err)
@@ -31,7 +30,6 @@ func init() {
 
 func main() {
 	router := gin.Default()
-	router.GET("/api/recordings/:year/:month/:day", recordingsHandler.ListPerDay)
-	router.GET("/api/recordings/search", recordingsHandler.SearchForText)
+	router.GET("/api/recordings/:day", recordingsHandler.ListPerDay)
 	router.Run(":5000")
 }
