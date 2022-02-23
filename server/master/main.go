@@ -31,6 +31,7 @@ func handleConnection(tcpConn net.Conn, amqpConn *amqp.Connection) {
 
 		// Send data to RabbitMQ
 		log.Printf("%s: \"%s\"\n", remoteAddr, strings.TrimSuffix(data, "\n"))
+		payload := strings.Split(remoteAddr, ":")[0] + ":" + data // add the IP of the sender without the port to the data
 		err = channelAmqp.Publish(
 			"",
 			os.Getenv("RABBITMQ_QUEUE"),
@@ -40,7 +41,7 @@ func handleConnection(tcpConn net.Conn, amqpConn *amqp.Connection) {
 				DeliveryMode: amqp.Persistent,
 				Timestamp:    time.Now(),
 				ContentType:  "text/plain",
-				Body:         []byte(data),
+				Body:         []byte(payload),
 			},
 		)
 		if err != nil {
