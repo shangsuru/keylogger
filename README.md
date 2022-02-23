@@ -2,15 +2,29 @@
 
 ## Server
 
-Start the server by running `docker-compose up -d`. The server listens at port 2345 for the keystrokes sent by the kernel module.  
-It also exposes a postgres instance at port 5423 and a RabbitMQ management console at port 8080.  
-An API to query the keystrokes stored in the database is available at port 5000.
+The server listens at port 2345 for incoming keystrokes sent by the kernel module and stores them in a database, where it can be queried via the API. Start the server:
+
+```
+docker-compose up -d --scale worker=5
+```
+
+Connect to the database:
+
+```
+psql postgresql://postgres:password@<SERVER-IP>:5432/keylogger
+```
+
+The server also exposes a RabbitMQ management console at `<SERVER-IP>:8080`.  
+Retrieve recorded keystrokes for a given day:
+
+```
+curl <SERVER-IP>:5000/api/recordings/2022-02-23
+```
 
 ## Kernel Module
 
 Follow these steps to install the kernel module onto the linux machine.
-It will capture keystrokes and send them to a hard coded (!) server address at port 2345.  
-For testing, you can start a TCP listener at that server with `nc -l 2345`.
+It will capture keystrokes and send them to a hard coded (!) SERVER-IP at port 2345.
 
 1. Compile the kernel module
 
