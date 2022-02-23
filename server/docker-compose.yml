@@ -1,0 +1,54 @@
+version: "3.9"
+
+services:
+    postgres:
+        image: postgres
+        restart: always
+        networks:
+            - network
+        ports:
+            - 5432:5432
+        environment:
+            - POSTGRES_PASSWORD=password
+        volumes:
+            - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+    rabbitmq:
+        image: rabbitmq:3-management
+        restart: always
+        networks:
+            - network
+        ports:
+            - 8080:15672
+        environment:
+            - RABBITMQ_DEFAULT_USER=user
+            - RABBITMQ_DEFAULT_PASS=password
+
+    master:
+        build: master
+        restart: always
+        depends_on:
+            - rabbitmq
+        networks:
+            - network
+        environment:
+            - RABBITMQ_URI=amqp://user:password@rabbitmq:5672/
+            - RABBITMQ_QUEUE=keystrokes
+        ports:
+            - 2345:2345
+
+    worker:
+        build: worker
+        restart: always
+        depends_on:
+            - rabbitmq
+            - postgres
+        networks:
+            - network
+        environment:
+            - RABBITMQ_URI=amqp://user:password@rabbitmq:5672/
+            - RABBITMQ_QUEUE=keystrokes
+            - PSQL_CONN=host=postgres port=5432 user=postgres password=password dbname=keylogger sslmode=disable
+
+networks:
+    network:
