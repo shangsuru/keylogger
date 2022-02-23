@@ -67,6 +67,18 @@ func main() {
 	}
 	log.Println("Connected to RabbitMQ server")
 
+	// Create queue
+	ch, err := amqpConn.Channel()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer ch.Close()
+	_, err = ch.QueueDeclare(os.Getenv("RABBITMQ_QUEUE"), true, false, false, false, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Listening for TCP requests
 	for {
 		tcpConn, err := ln.Accept()
 		if err != nil {
