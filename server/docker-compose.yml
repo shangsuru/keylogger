@@ -51,5 +51,17 @@ services:
             - RABBITMQ_QUEUE=keystrokes
             - PSQL_CONN=host=postgres port=5432 user=postgres password=password dbname=keylogger sslmode=disable
 
+    api:
+        build: api
+        restart: always
+        depends_on:
+            - postgres
+        networks:
+            - network
+        environment:
+            - PSQL_CONN=host=postgres port=5432 user=postgres password=password dbname=keylogger sslmode=disable
+        ports:
+            - 5000:5000
+
 networks:
     network:
