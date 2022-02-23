@@ -4,8 +4,7 @@
 
 Start the server by running `docker-compose up -d`. The server listens at port 2345 for the keystrokes sent by the kernel module.  
 It also exposes a postgres instance at port 5423 and a RabbitMQ management console at port 8080.  
-An API to query the keystrokes stored in the database is available at port 5000.  
-The database is not durable at the moment. After shutting the server down with `docker-compose down`, the data will be lost.
+An API to query the keystrokes stored in the database is available at port 5000.
 
 ## Kernel Module
 
